@@ -105,6 +105,17 @@ h2.ttl{font-size:20px;margin:2px 0 0}
 .steps li.done .h,.steps li.done .tx{color:var(--muted)}
 .steps li.done .h{text-decoration:line-through}
 a.btn{text-decoration:none;display:inline-block}
+.jlist{list-style:none;padding:0;margin:0}
+.jlist li{padding:10px 0;border-top:1px solid var(--line)}
+.jlist li:first-child{border-top:0}
+.jlist .jh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.jlist .jd{color:var(--muted);font-size:13px}
+.jlist .jt{font-weight:600}
+.jlist .js{font-size:14px;margin-top:4px}
+.jlist .je{font-size:12px;color:var(--muted);margin-top:4px}
+.words{columns:2;column-gap:20px;font-size:14px;margin:8px 0 0;padding:0;list-style:none}
+.words li{break-inside:avoid;padding:2px 0}
+.words b{font-weight:500}
 @media (max-width:640px){
   .stats{grid-template-columns:repeat(2,1fr)}
   .form{grid-template-columns:repeat(2,1fr)}
@@ -126,6 +137,7 @@ a.btn{text-decoration:none;display:inline-block}
   <nav id="tabs">
     <button data-t="today" class="on">Сегодня</button>
     <button data-t="week">Неделя</button>
+    <button data-t="journal">Журнал</button>
     <button data-t="errors">Ошибки</button>
     <button data-t="mocks">Тесты</button>
     <button data-t="overview">План</button>
@@ -184,6 +196,7 @@ a.btn{text-decoration:none;display:inline-block}
       <button id="toCur">Сегодня</button>
     </div>
     <div class="card" id="weekCard"></div>
+    <div class="card" id="weekWords"></div>
     <div class="card">
       <h3>Заметки недели</h3>
       <textarea id="weekNote" rows="4" placeholder="Что было трудно, что повторить, отзыв агента…"></textarea>
@@ -229,6 +242,16 @@ a.btn{text-decoration:none;display:inline-block}
       <svg class="chart" id="mChart" viewBox="0 0 600 200"></svg>
       <table id="mTable"></table>
     </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section id="journal">
+    <div class="card">
+      <h3>История занятий</h3>
+      <p class="small muted" style="margin:0">Агент записывает сюда каждую сессию: что прошли, результат, ошибки. Ошибки из записей сами попадают во вкладку «Ошибки». Файл <code>data/log.js</code> в репозитории.</p>
+      <p class="small muted" id="jStats" style="margin:6px 0 0"></p>
+    </div>
+    <div class="card"><ul class="jlist" id="jList"></ul></div>
   </section>
 
   <!-- ERRORS -->
@@ -306,6 +329,7 @@ a.btn{text-decoration:none;display:inline-block}
 <div class="toast" id="toast"></div>
 
 <script src="plan.js"></script>
+<script src="data/log.js"></script>
 <script>
 const RES = [
   ["Экзамен",[
@@ -364,6 +388,15 @@ const SRC={agent:'Агент',tutor:'Репетитор',group:'Группа',se
 const KEY="ielts-plan-v1";
 const def={start:"2026-11-02",exam:"",level:"A2",weeks:{},notes:{},daily:{},mocks:[],errors:[]};
 let S=load();
+const LOG=(window.IELTS_LOG&&typeof window.IELTS_LOG==='object')?window.IELTS_LOG:{words:{},sessions:[]};
+LOG.words=LOG.words||{};LOG.sessions=LOG.sessions||[];
+function importLog(){S.logImported=S.logImported||[];let n=0;
+  for(const ss of LOG.sessions){if(!ss.id||S.logImported.includes(ss.id))continue;
+    for(const e of (ss.errors||[]))addError(e.cat,e.wrong,e.right,ss.mode==='tutor'?'tutor':ss.mode==='group'?'group':'agent',ss.date);
+    S.logImported.push(ss.id);n++}
+  if(n){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}}return n}
+const MODE_RU={'daily':'Daily','check writing':'Письмо','grammar':'Грамматика','speaking':'Говорение','mock speaking':'Mock Speaking','mock review':'Разбор теста','weekly review':'Итоги недели','words':'Слова','group':'Группа','tutor':'Репетитор','test':'Тест'};
+function bandStr(b){if(!b)return'';const k=['ta','cc','lr','gra'].filter(x=>b[x]!=null).map(x=>x.toUpperCase()+' '+b[x]);return (b.overall!=null?'Band '+b.overall:'')+(k.length?' ('+k.join(' · ')+')':'')}
 function load(){let s;try{const r=localStorage.getItem(KEY);s=r?Object.assign({},def,JSON.parse(r)):structuredClone(def)}catch(e){s=structuredClone(def)}return migrate(s)}
 function migrate(s){s.errors=(s.errors||[]).map(normErr);return s}
 function normErr(e){return {id:e.id||(Date.now().toString(36)+Math.random().toString(36).slice(2,7)),cat:e.cat||'Grammar',wrong:e.wrong||'',right:e.right||'',src:e.src||'agent',date:e.date||'',last:e.last||e.date||'',hits:e.hits||1,done:!!e.done}}
@@ -383,11 +416,11 @@ let eF='active';
 const ekey=t=>String(t).toLowerCase().replace(/[^\p{L}\p{N}']+/gu,' ').trim();
 function normCat(c){c=String(c||'').trim();const k=c.toLowerCase();return CATS.find(x=>x.toLowerCase()===k)||CAT_RU[k]||(c?c[0].toUpperCase()+c.slice(1):'Grammar')}
 function clean(t){return String(t||'').replace(/\s*\(×\d+[^)]*\)\s*$/,'').replace(/\s*\[[^\]]*\]\s*$/,'').replace(/^[«"“']+|[»"”']+$/g,'').trim()}
-function addError(cat,wrong,right,src){
+function addError(cat,wrong,right,src,date){
   wrong=clean(wrong);right=clean(right);if(!wrong||!right)return 'skip';
   const k=ekey(wrong),ex=S.errors.find(e=>ekey(e.wrong)===k);
-  if(ex){ex.hits++;ex.done=false;ex.last=today();ex.right=right;return 'repeat'}
-  S.errors.push(normErr({cat:normCat(cat),wrong,right,src,date:today(),last:today()}));return 'new';
+  if(ex){ex.hits++;ex.done=false;ex.last=date||today();ex.right=right;return 'repeat'}
+  S.errors.push(normErr({cat:normCat(cat),wrong,right,src,date:date||today(),last:date||today()}));return 'new';
 }
 function parseErrors(text,fallbackCat){
   const out=[];let skipped=0;
@@ -446,6 +479,13 @@ function render(){
   $('mTable').innerHTML=S.mocks.length?`<tr><th>Дата</th><th>L</th><th>R</th><th>W</th><th>S</th><th>Overall</th><th>Источник</th><th></th></tr>`+S.mocks.map((m,i)=>`<tr><td>${m.date}</td><td>${m.l}</td><td>${m.r}</td><td>${m.w}</td><td>${m.s}</td><td><b>${overall(m).toFixed(1)}</b></td><td class="small muted">${esc(m.note||'')}</td><td><button class="del" data-i="${i}" title="Удалить">×</button></td></tr>`).join(''):'<tr><td class="muted">Пока нет тестов. Первый — на неделе 26.</td></tr>';
   $('mTable').querySelectorAll('.del').forEach(b=>b.onclick=()=>{S.mocks.splice(+b.dataset.i,1);save()});
   drawChart();
+  // week words
+  {const ww=LOG.words[viewWeek];$('weekWords').innerHTML=ww?`<div class="row" style="justify-content:space-between"><h3 style="margin:0">Слова недели · ${esc(ww.theme)} · ${ww.list.length}</h3><button class="btn sm" id="copyWords">Скопировать для Reps</button></div><ul class="words">${ww.list.map(x=>`<li><b>${esc(x[0])}</b> — ${esc(x[1])}</li>`).join('')}</ul>`:`<h3 style="margin:0">Слова недели</h3><p class="small muted" style="margin:4px 0 0">Ещё не выданы. Команда агенту: <code>words</code>.</p>`;
+   const cb=$('copyWords');if(cb)cb.onclick=()=>copy(ww.list.map(x=>x[0]+' — '+x[1]).join('\n'),'Слова скопированы');}
+  // journal
+  {const ss=LOG.sessions.slice().reverse();
+   $('jStats').textContent=ss.length?`Записей: ${ss.length} · слова выданы для недель: ${Object.keys(LOG.words).sort((a,b)=>a-b).join(', ')||'—'}`:'Записей пока нет.';
+   $('jList').innerHTML=ss.map(x=>`<li><div class="jh"><span class="tag">${esc(MODE_RU[x.mode]||x.mode)}</span><span class="jd">${x.date}${x.week?' · нед. '+x.week:''}</span>${x.level?`<span class="tag" style="background:var(--ok-soft);color:var(--ok)">${esc(x.level)}</span>`:''}${x.band?`<span class="tag" style="background:var(--ok-soft);color:var(--ok)">${esc(bandStr(x.band))}</span>`:''}${x.score?`<span class="tag">${esc(x.score)}</span>`:''}</div>${x.title?`<div class="jt">${esc(x.title)}</div>`:''}<div class="js">${esc(x.summary||'')}${x.link?` <a href="${esc(x.link)}" target="_blank" rel="noopener">↗</a>`:''}</div>${x.errors&&x.errors.length?`<div class="je">Ошибки: ${x.errors.map(e=>esc(e.wrong)+' → '+esc(e.right)).join(' · ')}</div>`:''}</li>`).join('')||'<li class="muted small">Пусто.</li>';}
   // errors
   const act=S.errors.filter(e=>!e.done),cf=$('eCatF').value;
   $('eStats').textContent=S.errors.length?`Активных: ${act.length} · выучено: ${S.errors.length-act.length}`+(act.length?' · '+catCounts(act).map(([c,n])=>c+' '+n).join(', '):''):'';
@@ -479,6 +519,8 @@ function report(){
   const dv=S.daily[today()]||[];
   r+=`\nПЛАН НА СЕГОДНЯ:\n`+tp.steps.map((st,i)=>`[${dv[i]?'x':' '}] ${st.title}: ${st.text}`).join('\n')+'\n';
   r+=`\nЗАДАЧИ НЕДЕЛИ ${cw}: ${wd.title}\n`+wd.tasks.map((t,i)=>`[${dn[i]?'x':' '}] ${t[0]}: ${t[1]}`).join('\n');
+  {const ww=LOG.words[cw];r+=`\nСЛОВА НЕДЕЛИ ${cw}: `+(ww?`${ww.list.length} выдано (${ww.theme}): ${ww.list.map(x=>x[0]).join(', ')}`:'ещё не выданы');}
+  if(LOG.sessions.length)r+=`\n\nПОСЛЕДНИЕ ЗАНЯТИЯ (журнал):\n`+LOG.sessions.slice(-6).map(x=>`${x.date} ${x.mode}${x.level?' · '+x.level:''}${x.band&&x.band.overall!=null?' · band '+x.band.overall:''}${x.score?' · '+x.score:''}: ${x.summary}`).join('\n');
   if(behind.length)r+=`\n\nНЕЗАКРЫТЫЕ НЕДЕЛИ: ${behind.slice(-6).join(', ')}`;
   if(S.notes[cw])r+=`\n\nЗАМЕТКИ: ${S.notes[cw]}`;
   if(S.mocks.length)r+=`\n\nТЕСТЫ (последние):\n`+S.mocks.slice(-4).map(m=>`${m.date}: L${m.l} R${m.r} W${m.w} S${m.s} → ${overall(m).toFixed(1)} ${m.note?'('+m.note+')':''}`).join('\n');
@@ -524,6 +566,7 @@ try{const t=localStorage.getItem(KEY+'-theme');if(t)document.documentElement.dat
 $('resList').innerHTML=RES.map(g=>`<h3 style="margin-top:8px">${g[0]}</h3><ul class="small" style="margin:4px 0 12px;padding-left:18px">${g[1].map(r=>`<li>${r[1]?`<a href="${r[1]}" target="_blank" rel="noopener">${r[0]}</a>`:r[0]}</li>`).join('')}</ul>`).join('')+
 `<p class="small muted">IELTS сдают в центрах British Council и IDP — проверь ближайший центр и даты на их сайтах. Некоторые программы принимают Duolingo English Test или PTE — это может быть дешевле. Уточни у своей программы.</p>`;
 
+importLog();
 render();
 </script>
 </body>

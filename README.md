@@ -60,6 +60,7 @@ A full day: 15 min words in Reps · 20 min listening + shadowing · 25 min main 
 - **Week** — tasks with checkboxes and weekly notes
 - **Today** (opens by default) — concrete steps for today based on the week and the day of the rhythm, with a «Start with agent» button that copies the command and the report together, plus an 8-week streak
 - **Mocks** — scores for Listening, Reading, Writing, Speaking; overall band calculated by IELTS rounding rules; progress chart against the 6.5 target
+- **Journal** — study history written by the agent into `data/log.js` (`tools/log.py`): every session with its result, plus the word lists per week; errors from journal entries are imported into the error log automatically
 - **Errors** — error log: paste the agent's whole ERRORS block at once, repeats bump a ×N counter instead of duplicating, mark errors as learned; the report sends only active errors, most frequent first
 - **Resources** — exam sites, books, word lists, practice sources
 - **Agent** — one-click report for the AI tutor, JSON export / import
@@ -87,4 +88,4 @@ Use **Export JSON** once a week as a backup, and **Import JSON** to move to anot
 
 ## Tech
 
-`index.html` + `plan.js` (plan data and the daily logic, also used by the 08:30 reminder in Node) — plain HTML, CSS and JavaScript, no build step, no dependencies. Hosted on GitHub Pages. Light and dark themes, mobile-friendly.
+`index.html` + `plan.js` + `data/log.js` (plan data and the daily logic, also used by the 08:30 reminder in Node) — plain HTML, CSS and JavaScript, no build step, no dependencies. Hosted on GitHub Pages. Light and dark themes, mobile-friendly.
