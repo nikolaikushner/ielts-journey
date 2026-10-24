@@ -395,7 +395,7 @@ function importLog(){S.logImported=S.logImported||[];let n=0;
     for(const e of (ss.errors||[])){const ex=S.errors.find(x=>ekey(x.wrong)===ekey(e.wrong));if(ex&&ex.date===ss.date)continue;/* already added by hand that day */addError(e.cat,e.wrong,e.right,ss.mode==='tutor'?'tutor':ss.mode==='group'?'group':'agent',ss.date)}
     S.logImported.push(ss.id);n++}
   if(n){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}}return n}
-const MODE_RU={'daily':'Daily','check writing':'Письмо','grammar':'Грамматика','speaking':'Говорение','mock speaking':'Mock Speaking','mock review':'Разбор теста','weekly review':'Итоги недели','words':'Слова','group':'Группа','tutor':'Репетитор','test':'Тест'};
+const MODE_RU={'daily':'Daily','check writing':'Письмо','grammar':'Грамматика','speaking':'Говорение','mock speaking':'Mock Speaking','mock review':'Разбор теста','weekly review':'Итоги недели','words':'Слова','group':'Группа','tutor':'Репетитор','test':'Тест','reading':'Чтение'};
 function bandStr(b){if(!b)return'';const k=['ta','cc','lr','gra'].filter(x=>b[x]!=null).map(x=>x.toUpperCase()+' '+b[x]);return (b.overall!=null?'Band '+b.overall:'')+(k.length?' ('+k.join(' · ')+')':'')}
 function load(){let s;try{const r=localStorage.getItem(KEY);s=r?Object.assign({},def,JSON.parse(r)):structuredClone(def)}catch(e){s=structuredClone(def)}return migrate(s)}
 function migrate(s){s.errors=(s.errors||[]).map(normErr);return s}

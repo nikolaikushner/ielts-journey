@@ -419,6 +419,14 @@ window.IELTS_LOG = {
     }
    ],
    "id": "2026-10-24-daily"
+  },
+  {
+   "date": "2026-10-24",
+   "mode": "reading",
+   "week": 0,
+   "title": "Книги для чтения на фазу 1",
+   "summary": "Купил Penguin Readers Level 2 (A2): «The Extraordinary Life of Steve Jobs» и «How to Turn Down a Billion Dollars» (история Snapchat). Начинаем со Steve Jobs, по 2 главы в неделю. Есть на примете старые Penguin Level 2 с аудио: Apollo 13, Jaws, The Lady in the Lake.",
+   "id": "2026-10-24-reading"
   }
  ]
 };
