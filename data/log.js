@@ -388,6 +388,37 @@ window.IELTS_LOG = {
    "title": "Слова недели 1",
    "summary": "Выданы 80 слов по теме «работа и дом» (2 списка по 40), добавлены в Reps.",
    "id": "2026-10-22-words"
+  },
+  {
+   "date": "2026-10-24",
+   "mode": "daily",
+   "week": 1,
+   "title": "Квиз по словам недели 1",
+   "summary": "Только слова (грамматику остановили — она стартует 2 ноября). 6/10: не вспомнил quit, cupboard, stressful (вчерашний список); early написал как yarly. Пишет в американском варианте: neighbor, cozy.",
+   "score": "слова 6/10",
+   "errors": [
+    {
+     "cat": "Vocabulary",
+     "wrong": "yarly",
+     "right": "early"
+    },
+    {
+     "cat": "Vocabulary",
+     "wrong": "— (увольняться)",
+     "right": "quit"
+    },
+    {
+     "cat": "Vocabulary",
+     "wrong": "— (cupboard)",
+     "right": "шкаф; читается /ˈkʌbəd/"
+    },
+    {
+     "cat": "Vocabulary",
+     "wrong": "— (stressful)",
+     "right": "напряжённый"
+    }
+   ],
+   "id": "2026-10-24-daily"
   }
  ]
 };
