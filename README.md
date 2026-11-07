@@ -1,91 +1,32 @@
 # IELTS Journey
 
-**English A2 → IELTS Academic 6.5 in 52 weeks — an interactive study plan built to learn together with an AI tutor.**
+**English A2 → IELTS Academic 6.5 in 52 weeks — studying with Claude as a tutor.**
 
 🌐 **Live page:** https://nikolaikushner.github.io/ielts-journey/
-🤖 **Agent instructions:** [AGENT.md](AGENT.md)
 
----
+The main tracker lives in Claude (a private dashboard the tutor updates after every session). This repository is a **periodic snapshot** of it, published on GitHub Pages so the progress is visible outside Claude too.
 
-## Goal
+## What is on the page
 
-| | |
-| --- | --- |
-| Start level | A2 |
-| Target | IELTS Academic **6.5** overall, at least **6.0** in each part |
-| Duration | 52 weeks (start: 2 Nov 2026) |
-| Workload | ~6 hours of self-study + a tutor and 2 speaking groups per week |
-| Why | Entry requirement for an online bachelor's degree, then an in-person master's |
+- **Progress** — current week and level, this week's tasks, level tests (EF SET), worksheets (PDF for Apple Pencil), study journal, error log and the full vocabulary by week.
+- **Tenses** — a 3 × 4 grid of English tenses (Present / Past / Future × Simple / Continuous / Perfect / Perfect Continuous). Click a cell for the formula, usage, signal words, examples, typical mistakes of Russian speakers and — for the tenses already covered — the full lesson as it was taught.
 
-## Phases
+## Files
+
+- `index.html` — the page (plain HTML, CSS and JS, no build step)
+- `data/snapshot.js` — snapshot of all data (status, tasks, tests, worksheets, journal, errors, words); `IJ_DATA_AT` is the snapshot date
+- `tenses.js` — tense reference and lessons
+- `worksheets/NN.pdf` — grammar worksheets
+- `plan.js`, `tools/`, `AGENT.md` — the original 52-week plan and the first version of the tracker; kept for reference
+
+## Plan
 
 | Phase | Weeks | Level | Focus |
 | --- | --- | --- | --- |
-| 1. Foundation | 1–14 | A2 → B1 | Core grammar, Oxford 3000, short texts (100–150 words), basic speaking |
-| 2. Confidence | 15–26 | B1 → B1+ | Passive, conditionals, reported speech, articles, 150–200 word texts, IELTS Speaking Part 1–2 |
-| 3. Academic English | 27–38 | B1+ → B2 | Academic Word List, cohesion, paraphrasing, IELTS Writing Task 1 & 2, Speaking Part 3 |
-| 4. IELTS format | 39–48 | B2 | All question types, real timing, mock tests every 2–3 weeks, exam booking |
-| 5. Finish | 49–52 | — | Full mocks, weak spots, rest, exam day |
+| 1. Foundation | 1–14 | A2 → B1 | Core grammar, Oxford 3000, short texts, basic speaking |
+| 2. Confidence | 15–26 | B1 → B1+ | Passive, conditionals, reported speech, articles, IELTS Speaking Part 1–2 |
+| 3. Academic English | 27–38 | B1+ → B2 | Academic Word List, IELTS Writing Task 1 & 2, Speaking Part 3 |
+| 4. IELTS format | 39–48 | B2 | All question types, timing, mock tests, exam booking |
+| 5. Finish | 49–52 | — | Full mocks, weak spots, exam day |
 
-Checkpoints at weeks **14**, **26** and **38**: level test + honest review with the agent before moving on.
-
-## Weekly structure
-
-Each week (phases 1–3) has six tasks:
-
-- **Grammar** — one topic, explained and drilled with the agent
-- **Vocabulary** — a word block, a separate word group in [Reps: English Drills](https://apps.apple.com/search?term=Reps%20English%20Drills), reviewed daily
-- **Listening** — BBC 6 Minute English → TED-Ed → TED talks
-- **Reading** — graded readers → BBC Learning English → BBC Future / The Conversation
-- **Writing** — one text per week, checked by the agent
-- **Speaking** — a topic conversation with the agent
-
-### Weekly rhythm
-
-| Day | With people | Self-study |
-| --- | --- | --- |
-| Mon | Tutor | 30 min: vocabulary + listening |
-| Tue | Speaking group | 30 min: vocabulary + listening |
-| Wed | — | ~75 min: full day |
-| Thu | Speaking group | 30 min: vocabulary + listening |
-| Fri | — | ~75 min: full day |
-| Sat | — | 2 h: writing, grammar, weekly review |
-| Sun | — | Rest |
-
-A full day: 15 min words in Reps · 20 min listening + shadowing · 25 min main task · 10–15 min speaking.
-
-## Page features
-
-- **Overview** — 52-week map, phases, start and exam dates
-- **Week** — tasks with checkboxes and weekly notes
-- **Today** (opens by default) — concrete steps for today based on the week and the day of the rhythm, with a «Start with agent» button that copies the command and the report together, plus an 8-week streak
-- **Mocks** — scores for Listening, Reading, Writing, Speaking; overall band calculated by IELTS rounding rules; progress chart against the 6.5 target
-- **Journal** — study history written by the agent into `data/log.js` (`tools/log.py`): every session with its result, plus the word lists per week; errors from journal entries are imported into the error log automatically
-- **Errors** — error log: paste the agent's whole ERRORS block at once, repeats bump a ×N counter instead of duplicating, mark errors as learned; the report sends only active errors, most frequent first
-- **Resources** — exam sites, books, word lists, practice sources
-- **Agent** — one-click report for the AI tutor, JSON export / import
-
-## How to study with the agent
-
-1. Start a new chat with an AI assistant and paste the text from [AGENT.md](AGENT.md).
-2. Open the page — it starts on **Today**. Press **Start with agent** on a step: the command and the report are copied together. Paste them into the chat.
-3. Use commands: `words`, `daily`, `grammar`, `check writing`, `speaking`, `mock speaking`, `mock review`, `weekly review`.
-4. Move the agent's **ERRORS** block into the **Errors** tab.
-5. Tick completed tasks on the page.
-
-## Data and privacy
-
-Progress is stored only in your browser (`localStorage`). Nothing is sent to a server.
-Use **Export JSON** once a week as a backup, and **Import JSON** to move to another device.
-
-## Resources
-
-- Exam: [IELTS.org](https://ielts.org) · [British Council](https://takeielts.britishcouncil.org) · [IDP IELTS](https://ielts.idp.com)
-- Grammar: Murphy — *Essential Grammar in Use* (phase 1), *English Grammar in Use* (phases 2–3), Cambridge — *Grammar for IELTS*
-- Vocabulary: [Oxford 3000 / 5000](https://www.oxfordlearnersdictionaries.com/wordlists/oxford3000-5000) · [Academic Word List](https://www.wgtn.ac.nz/lals/resources/academicwordlist) · Cambridge — *Vocabulary for IELTS*
-- Practice: Cambridge IELTS Academic 16–19 · [IELTS Liz](https://ieltsliz.com)
-- Level test: [EF SET](https://www.efset.org) · [Cambridge English](https://www.cambridgeenglish.org/test-your-english/)
-
-## Tech
-
-`index.html` + `plan.js` + `data/log.js` (plan data and the daily logic, also used by the 08:30 reminder in Node) — plain HTML, CSS and JavaScript, no build step, no dependencies. Hosted on GitHub Pages. Light and dark themes, mobile-friendly.
+Start: 26 October 2026. Checkpoints at weeks 14, 26 and 38.
